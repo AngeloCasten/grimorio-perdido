@@ -6,9 +6,15 @@ import 'screens/tela_menu_principal.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Configurações do Supabase (Substitua pelos seus dados do Dashboard)
-const String supabaseUrl = 'SUA_URL_DO_SUPABASE';
-const String supabaseAnonKey = 'SUA_ANON_KEY_DO_SUPABASE';
+// Configurações do Supabase (Injetadas via --dart-define no build)
+const String supabaseUrl = String.fromEnvironment(
+  'SUPABASE_URL',
+  defaultValue: 'SUA_URL_DO_SUPABASE',
+);
+const String supabaseAnonKey = String.fromEnvironment(
+  'SUPABASE_ANON_KEY',
+  defaultValue: 'SUA_ANON_KEY_DO_SUPABASE',
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
