@@ -71,7 +71,10 @@ Se desejar rodar o projeto localmente:
     ```
 3.  **Variáveis de Ambiente**: O projeto utiliza `--dart-define` para segurança. Rode com:
     ```bash
-    flutter run -d chrome --dart-define=SUPABASE_URL=SUA_URL --dart-define=SUPABASE_ANON_KEY=SUA_KEY
+    flutter run -d chrome \
+      --dart-define=SUPABASE_URL=SUA_URL \
+      --dart-define=SUPABASE_ANON_KEY=SUA_KEY \
+      --dart-define=AI_KEY=SUA_CHAVE_GEMINI_FREE
     ```
 
 ---
