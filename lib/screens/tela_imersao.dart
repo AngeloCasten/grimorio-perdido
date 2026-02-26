@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:provider/provider.dart';
 import '../providers/game_provider.dart';
 import '../models/game_models.dart';
+import '../services/sound_service.dart';
 import '../widgets/grimorio_widgets.dart';
 
 class TelaImersao extends StatefulWidget {
@@ -74,6 +75,7 @@ class _TelaImersaoState extends State<TelaImersao> with TickerProviderStateMixin
       final game = Provider.of<GameProvider>(context, listen: false);
       setState(() {
         if (acertou) {
+          SoundService.playSFX("success");
           _feedbackPositivo = true;
           _comboStreak++;
           int bonusCombo = (_comboStreak > 1) ? _comboStreak * 5 : 0;
@@ -83,10 +85,11 @@ class _TelaImersaoState extends State<TelaImersao> with TickerProviderStateMixin
           _mostrarBotaoAvancar = true;
           _spawnParticulas();
         } else {
+          SoundService.playSFX("error");
           _feedbackPositivo = false;
           _comboStreak = 0;
           _feedbackMensagem = "O combo foi quebrado... $mensagemErro";
-          _shakeController.forward();
+          _shakeController.forward(from: 0);
         }
       });
     }

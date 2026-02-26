@@ -10,6 +10,8 @@ import 'tela_gestao_grimorio.dart';
 import 'tela_selecao_era.dart';
 import 'tela_tutorial.dart';
 import 'tela_grimorio.dart';
+import 'tela_leaderboard.dart';
+import '../services/sound_service.dart';
 
 class TelaMenuPrincipal extends StatefulWidget {
   const TelaMenuPrincipal({super.key});
@@ -25,6 +27,7 @@ class _TelaMenuPrincipalState extends State<TelaMenuPrincipal> with SingleTicker
   void initState() {
     super.initState();
     _bgController = AnimationController(vsync: this, duration: const Duration(seconds: 10))..repeat();
+    SoundService.playBGM(); // Inicia música mística
   }
 
   @override
@@ -125,6 +128,14 @@ class _TelaMenuPrincipalState extends State<TelaMenuPrincipal> with SingleTicker
                     cor: Colors.blueGrey,
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const TelaGrimorio()));
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  BotaoMagico(
+                    texto: "RANKING GLOBAL",
+                    cor: const Color(0xFFD4AF37).withOpacity(0.5),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const TelaLeaderboard()));
                     },
                   ),
                   const SizedBox(height: 30),

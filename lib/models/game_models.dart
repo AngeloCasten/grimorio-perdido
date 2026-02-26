@@ -116,6 +116,44 @@ class PalavraMestra {
       xpValor: xpValor ?? this.xpValor,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'termo_principal': termoPrincipal,
+      'definicao': definicao,
+      'etimologia': etimologia,
+      'classe_gramatical': classeGramatical,
+      'frase_lacuna': fraseLacuna,
+      'autor_citacao': autorCitacao,
+      'pergunta_quiz': perguntaQuiz,
+      'opcoes_quiz': opcoesQuiz,
+      'index_correto_quiz': indexCorretoQuiz,
+      'explicacao_erro': explicacaoErro,
+      'desafio_criativo': desafioCriativo,
+      'aceitas_flexoes': aceitasFlexoes,
+      'xp_valor': xpValor,
+    };
+  }
+
+  factory PalavraMestra.fromMap(Map<String, dynamic> map) {
+    return PalavraMestra(
+      id: map['id'],
+      termoPrincipal: map['termo_principal'],
+      definicao: map['definicao'],
+      etimologia: map['etimologia'],
+      classeGramatical: map['classe_gramatical'],
+      fraseLacuna: map['frase_lacuna'],
+      autorCitacao: map['autor_citacao'],
+      perguntaQuiz: map['pergunta_quiz'],
+      opcoesQuiz: List<String>.from(map['opcoes_quiz']),
+      indexCorretoQuiz: map['index_correto_quiz'],
+      explicacaoErro: map['explicacao_erro'],
+      desafioCriativo: map['desafio_criativo'],
+      aceitasFlexoes: List<String>.from(map['aceitas_flexoes']),
+      xpValor: map['xp_valor'] ?? 200,
+    );
+  }
 }
 
 class EraLiteraria {
@@ -138,6 +176,32 @@ class EraLiteraria {
     required this.nomeArtefato,
     required this.palavras,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nome': nome,
+      'descricao': descricao,
+      'cor_tema': corTema.value,
+      'avatar_seed': avatarSeed,
+      'icone_code': iconeArtefato.codePoint,
+      'nome_artefato': nomeArtefato,
+      // Palavras geralmente serão salvas em tabela separada no Supabase, mas toMap ajuda em cache local
+    };
+  }
+
+  factory EraLiteraria.fromMap(Map<String, dynamic> map, List<PalavraMestra> palavras) {
+    return EraLiteraria(
+      id: map['id'],
+      nome: map['nome'],
+      descricao: map['descricao'],
+      corTema: Color(map['cor_tema']),
+      avatarSeed: map['avatar_seed'],
+      iconeArtefato: IconData(map['icone_code'], fontFamily: 'MaterialIcons'),
+      nomeArtefato: map['nome_artefato'],
+      palavras: palavras,
+    );
+  }
 }
 
 class Talento {

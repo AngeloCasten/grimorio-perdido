@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/game_provider.dart';
 import '../models/game_models.dart';
 import '../widgets/grimorio_widgets.dart';
+import '../services/ai_service.dart';
 
 class TelaAdmin extends StatefulWidget {
   final String? initialEraId;
@@ -59,21 +60,29 @@ class _TelaAdminState extends State<TelaAdmin> {
   }
 
   void _simularGeracaoIA() async {
-    setState(() => _isGeneratingAI = true);
-    await Future.delayed(const Duration(seconds: 2));
+    if (_termoController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Digite o termo primeiro!")));
+      return;
+    }
     
-    _termoController.text = "EFULGENTE";
-    _definicaoController.text = "Que brilha muito; resplandecente, brilhante.";
-    _etimologiaController.text = "Do latim: effulgere (brilhar intensamente).";
-    _classeController.text = "Adjetivo";
-    _fraseController.text = "Sua inteligência era ___, iluminando toda a sala.";
-    _autorController.text = "Castro Alves (Simulado)";
-    _perguntaController.text = "Qual o significado de efulgente?";
-    _opcoesController.text = "Fosco, Brilhante, Escuro, Pequeno";
-    _indexCorretocontroller.text = "1";
-    _explicacaoController.text = "Efulgente vem de brilho intenso, como o sol.";
-    _desafioController.text = "Descreva um momento efulgente da sua vida.";
-    _flexoesController.text = "brilhante, radiante, luz";
+    setState(() => _isGeneratingAI = true);
+    final data = await AIService.generateWordContent(_termoController.text);
+    
+    if (data != null && mounted) {
+      _definicaoController.text = data['definicao'] ?? "";
+      _etimologiaController.text = data['etimologia'] ?? "";
+      _classeController.text = data['classe_gramatical'] ?? "";
+      _fraseController.text = data['frase_lacuna'] ?? "";
+      _autorController.text = data['autor_citacao'] ?? "";
+      _perguntaController.text = data['pergunta_quiz'] ?? "";
+      _opcoesController.text = (data['opcoes_quiz'] as List).join(', ');
+      _indexCorretocontroller.text = data['index_correto_quiz'].toString();
+      _explicacaoController.text = data['explicacao_erro'] ?? "";
+      _desafioController.text = data['desafio_criativo'] ?? "";
+      _flexoesController.text = (data['aceitas_flexoes'] as List).join(', ');
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("A IA falhou ou falta a chave AI_KEY.")));
+    }
 
     if (mounted) setState(() => _isGeneratingAI = false);
   }
