@@ -243,5 +243,80 @@ class GameProvider extends ChangeNotifier {
     }
   }
   
-  // ... outros métodos simplificados para brevidade
+  Future<void> removerPalavra(String eraId, String palavraId) async {
+    int eraIndex = _eras.indexWhere((e) => e.id == eraId);
+    if (eraIndex != -1) {
+      final eraAntiga = _eras[eraIndex];
+      final novasPalavras = List<PalavraMestra>.from(eraAntiga.palavras);
+      novasPalavras.removeWhere((p) => p.id == palavraId);
+      
+      _eras[eraIndex] = EraLiteraria(
+        id: eraAntiga.id,
+        nome: eraAntiga.nome,
+        descricao: eraAntiga.descricao,
+        corTema: eraAntiga.corTema,
+        avatarSeed: eraAntiga.avatarSeed,
+        iconeArtefato: eraAntiga.iconeArtefato,
+        nomeArtefato: eraAntiga.nomeArtefato,
+        palavras: novasPalavras,
+      );
+      
+      try {
+        await _supabase.from('palavras').delete().eq('id', palavraId);
+      } catch (e) {
+        print("Erro ao remover da nuvem: $e");
+      }
+      
+      notifyListeners();
+    }
+  }
+
+  Future<void> atualizarPalavra(String eraId, PalavraMestra palavraAtualizada) async {
+    int eraIndex = _eras.indexWhere((e) => e.id == eraId);
+    if (eraIndex != -1) {
+      final eraAntiga = _eras[eraIndex];
+      final novasPalavras = List<PalavraMestra>.from(eraAntiga.palavras);
+      int pIndex = novasPalavras.indexWhere((p) => p.id == palavraAtualizada.id);
+      
+      if (pIndex != -1) {
+        novasPalavras[pIndex] = palavraAtualizada;
+        _eras[eraIndex] = EraLiteraria(
+          id: eraAntiga.id,
+          nome: eraAntiga.nome,
+          descricao: eraAntiga.descricao,
+          corTema: eraAntiga.corTema,
+          avatarSeed: eraAntiga.avatarSeed,
+          iconeArtefato: eraAntiga.iconeArtefato,
+          nomeArtefato: eraAntiga.nomeArtefato,
+          palavras: novasPalavras,
+        );
+        
+        try {
+          await _supabase.from('palavras').update(palavraAtualizada.toMap()).eq('id', palavraAtualizada.id);
+        } catch (e) {
+          print("Erro ao atualizar na nuvem: $e");
+        }
+        
+        notifyListeners();
+      }
+    }
+  }
+
+  void restaurarEra(String eraId) {
+    if (!_erasRestauradas.contains(eraId)) {
+      _erasRestauradas.add(eraId);
+      _fragmentos += 100;
+      saveProgress();
+      notifyListeners();
+    }
+  }
+
+  void comprarTalento(Talento talento) {
+    if (_pontosTalento >= talento.custo && !_talentos.contains(talento.id)) {
+      _pontosTalento -= talento.custo;
+      _talentos.add(talento.id);
+      saveProgress();
+      notifyListeners();
+    }
+  }
 }

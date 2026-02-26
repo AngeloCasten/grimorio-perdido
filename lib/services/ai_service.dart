@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AIService {
-  static const String _apiURL = "https://api.openai.com/v1/chat/completions";
+  // Ajustado para usar o Google Gemini API
+  static const String _apiURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
   // O usuário deve passar a chave via --dart-define=AI_KEY=...
   static const String _apiKey = String.fromEnvironment('AI_KEY');
 
@@ -10,39 +11,56 @@ class AIService {
     if (_apiKey.isEmpty) return null;
 
     final prompt = """
-    Gere um JSON para a palavra literária '$termo' com os campos:
-    definicao (curta), 
-    etimologia (origem da palavra), 
-    classe_gramatical, 
-    frase_lacuna (uma frase de autor clássico com a palavra substituída por ___), 
-    autor_citacao, 
-    pergunta_quiz, 
-    opcoes_quiz (lista de 4 strings), 
-    index_correto_quiz (0 a 3), 
-    explicacao_erro, 
-    desafio_criativo (proposta de escrita), 
-    aceitas_flexoes (lista de 3 variações).
-    Responda APENAS o JSON.
+    Gere um JSON JSON estruturado exatamente como este exemplo para a palavra literária '$termo':
+    {
+      "definicao": "valor",
+      "etimologia": "valor",
+      "classe_gramatical": "valor",
+      "frase_lacuna": "frase com ___",
+      "autor_citacao": "nome",
+      "pergunta_quiz": "texto",
+      "opcoes_quiz": ["op1", "op2", "op3", "op4"],
+      "index_correto_quiz": 1,
+      "explicacao_erro": "texto",
+      "desafio_criativo": "texto",
+      "aceitas_flexoes": ["v1", "v2", "v3"]
+    }
+    Responda APENAS o JSON puro, sem markdown ou explicações.
     """;
 
     try {
       final response = await http.post(
-        Uri.parse(_apiURL),
+        Uri.parse("$_apiURL?key=$_apiKey"),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          "model": "gpt-3.5-turbo",
-          "messages": [{"role": "user", "content": prompt}],
-          "temperature": 0.7
+          "contents": [
+            {
+              "parts": [
+                {"text": prompt}
+              ]
+            }
+          ],
+          "generationConfig": {
+            "temperature": 0.7,
+            "topK": 40,
+            "topP": 0.95,
+            "maxOutputTokens": 1024,
+          }
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-        final content = data['choices'][0]['message']['content'];
+        String content = data['candidates'][0]['content']['parts'][0]['text'];
+        
+        // Limpar possíveis markdown code blocks que o Gemini às vezes retorna
+        content = content.replaceAll('```json', '').replaceAll('```', '').trim();
+        
         return jsonDecode(content);
+      } else {
+        print("Erro Gemini: ${response.statusCode} - ${response.body}");
       }
     } catch (e) {
       print("Erro na IA: $e");
