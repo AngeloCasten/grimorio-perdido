@@ -5,7 +5,10 @@ import '../models/game_models.dart';
 import '../widgets/grimorio_widgets.dart';
 
 class TelaAdmin extends StatefulWidget {
-  const TelaAdmin({super.key});
+  final String? initialEraId;
+  final PalavraMestra? palavraParaEditar;
+  
+  const TelaAdmin({super.key, this.initialEraId, this.palavraParaEditar});
 
   @override
   State<TelaAdmin> createState() => _TelaAdminState();
@@ -13,7 +16,7 @@ class TelaAdmin extends StatefulWidget {
 
 class _TelaAdminState extends State<TelaAdmin> {
   final _formKey = GlobalKey<FormState>();
-  String _selectedEraId = "era_quinhentismo";
+  late String _selectedEraId;
   
   // Controllers
   final _termoController = TextEditingController();
@@ -23,21 +26,42 @@ class _TelaAdminState extends State<TelaAdmin> {
   final _fraseController = TextEditingController();
   final _autorController = TextEditingController();
   final _perguntaController = TextEditingController();
-  final _opcoesController = TextEditingController(); // Separadas por vírgula
+  final _opcoesController = TextEditingController();
   final _indexCorretocontroller = TextEditingController();
   final _explicacaoController = TextEditingController();
   final _desafioController = TextEditingController();
   final _flexoesController = TextEditingController();
+  final _xpController = TextEditingController(text: "200");
 
   bool _isGeneratingAI = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedEraId = widget.initialEraId ?? "era_quinhentismo";
+    
+    if (widget.palavraParaEditar != null) {
+      final p = widget.palavraParaEditar!;
+      _termoController.text = p.termoPrincipal;
+      _definicaoController.text = p.definicao;
+      _etimologiaController.text = p.etimologia;
+      _classeController.text = p.classeGramatical;
+      _fraseController.text = p.fraseLacuna;
+      _autorController.text = p.autorCitacao;
+      _perguntaController.text = p.perguntaQuiz;
+      _opcoesController.text = p.opcoesQuiz.join(', ');
+      _indexCorretocontroller.text = p.indexCorretoQuiz.toString();
+      _explicacaoController.text = p.explicacaoErro;
+      _desafioController.text = p.desafioCriativo;
+      _flexoesController.text = p.aceitasFlexoes.join(', ');
+      _xpController.text = p.xpValor.toString();
+    }
+  }
+
   void _simularGeracaoIA() async {
     setState(() => _isGeneratingAI = true);
-    
-    // Simulação de chamada de IA (aqui eu, o Assistente, "opero")
     await Future.delayed(const Duration(seconds: 2));
     
-    // Exemplo de palavra gerada: "EFULGENTE"
     _termoController.text = "EFULGENTE";
     _definicaoController.text = "Que brilha muito; resplandecente, brilhante.";
     _etimologiaController.text = "Do latim: effulgere (brilhar intensamente).";
@@ -58,8 +82,8 @@ class _TelaAdminState extends State<TelaAdmin> {
     if (_formKey.currentState!.validate()) {
       final game = Provider.of<GameProvider>(context, listen: false);
       
-      final novaPalavra = PalavraMestra(
-        id: "custom_${DateTime.now().millisecondsSinceEpoch}",
+      final palavra = PalavraMestra(
+        id: widget.palavraParaEditar?.id ?? "custom_${DateTime.now().millisecondsSinceEpoch}",
         termoPrincipal: _termoController.text,
         definicao: _definicaoController.text,
         etimologia: _etimologiaController.text,
@@ -72,10 +96,16 @@ class _TelaAdminState extends State<TelaAdmin> {
         explicacaoErro: _explicacaoController.text,
         desafioCriativo: _desafioController.text,
         aceitasFlexoes: _flexoesController.text.split(',').map((e) => e.trim()).toList(),
+        xpValor: int.tryParse(_xpController.text) ?? 200,
       );
 
-      game.adicionarPalavra(_selectedEraId, novaPalavra);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sabedoria adicionada ao Grimório!")));
+      if (widget.palavraParaEditar != null) {
+        game.atualizarPalavra(_selectedEraId, palavra);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sabedoria atualizada!")));
+      } else {
+        game.adicionarPalavra(_selectedEraId, palavra);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sabedoria adicionada ao Grimório!")));
+      }
       Navigator.pop(context);
     }
   }
@@ -83,15 +113,16 @@ class _TelaAdminState extends State<TelaAdmin> {
   @override
   Widget build(BuildContext context) {
     final game = Provider.of<GameProvider>(context);
+    final isEditing = widget.palavraParaEditar != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("FORJA DE CONHECIMENTO", style: TextStyle(color: Colors.redAccent, fontSize: 16)),
+        title: Text(isEditing ? "EDITAR SABEDORIA" : "FORJA DE CONHECIMENTO", style: const TextStyle(color: Colors.redAccent, fontSize: 16)),
         backgroundColor: Colors.black,
         actions: [
           IconButton(
-            icon: _isGeneratingAI ? const CircularProgressIndicator() : const Icon(Icons.auto_awesome, color: Colors.amber),
-            onPressed: _simularGeracaoIA,
+            icon: _isGeneratingAI ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.auto_awesome, color: Colors.amber),
+            onPressed: isEditing ? null : _simularGeracaoIA,
             tooltip: "Pedir auxílio da IA",
           )
         ],
@@ -104,7 +135,7 @@ class _TelaAdminState extends State<TelaAdmin> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text("CONFIGURAR NOVA PALAVRA MESTRA", style: TextStyle(color: Colors.white54, fontSize: 10)),
+              Text(isEditing ? "AJUSTAR REGISTRO EXISTENTE" : "CONFIGURAR NOVA PALAVRA MESTRA", style: const TextStyle(color: Colors.white54, fontSize: 10)),
               const SizedBox(height: 20),
               
               DropdownButtonFormField<String>(
@@ -115,26 +146,27 @@ class _TelaAdminState extends State<TelaAdmin> {
                 items: game.eras.map((era) {
                   return DropdownMenuItem(value: era.id, child: Text(era.nome));
                 }).toList(),
-                onChanged: (val) => setState(() => _selectedEraId = val!),
+                onChanged: isEditing ? null : (val) => setState(() => _selectedEraId = val!),
               ),
               
               const SizedBox(height: 15),
               _buildField(_termoController, "TERMO (EX: EFÊMERO)"),
               _buildField(_classeController, "CLASSE GRAMATICAL"),
+              _buildField(_xpController, "XP OBTIDO NO DOMÍNIO (EX: 200)", keyboardType: TextInputType.number),
               _buildField(_definicaoController, "DEFINIÇÃO COMPLETA", maxLines: 2),
               _buildField(_etimologiaController, "ETIMOLOGIA/ORIGEM"),
               _buildField(_fraseController, "FRASE COM LACUNA (USE ___)"),
               _buildField(_autorController, "AUTOR DA CITAÇÃO"),
               _buildField(_perguntaController, "PERGUNTA DO QUIZ"),
               _buildField(_opcoesController, "OPÇÕES DO QUIZ (SEPARADAS POR VÍRGULA)"),
-              _buildField(_indexCorretocontroller, "INDEX DA RESPOSTA CORRETA (0-3)"),
+              _buildField(_indexCorretocontroller, "INDEX DA RESPOSTA CORRETA (0-3)", keyboardType: TextInputType.number),
               _buildField(_explicacaoController, "EXPLICAÇÃO EM CASO DE ERRO"),
               _buildField(_desafioController, "DESAFIO CRIATIVO"),
               _buildField(_flexoesController, "SINÔNIMOS ACEITOS (SEPARADOS POR VÍRGULA)"),
               
               const SizedBox(height: 30),
               BotaoMagico(
-                texto: "FORJAR PALAVRA",
+                texto: isEditing ? "ATUALIZAR REGISTRO" : "FORJAR PALAVRA",
                 cor: Colors.redAccent,
                 onPressed: _salvarPalavra,
               ),
@@ -146,12 +178,13 @@ class _TelaAdminState extends State<TelaAdmin> {
     );
   }
 
-  Widget _buildField(TextEditingController controller, String label, {int maxLines = 1}) {
+  Widget _buildField(TextEditingController controller, String label, {int maxLines = 1, TextInputType? keyboardType}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: TextFormField(
         controller: controller,
         maxLines: maxLines,
+        keyboardType: keyboardType,
         style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: _inputDecoration(label),
         validator: (val) => val == null || val.isEmpty ? "Campo obrigatório" : null,

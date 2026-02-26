@@ -89,4 +89,4 @@ O projeto inclui um arquivo `vercel.json` configurado para evitar erros de 404 e
 
 ---
 
-*Forjado com paixão e código por **Angelo Casten** e **Antigravity AI***.
+*Forjado com paixão e código por  **Edgar Souza**, **Angelo Casten** e **Antigravity AI***.

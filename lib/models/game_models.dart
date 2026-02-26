@@ -64,6 +64,7 @@ class PalavraMestra {
   final String explicacaoErro;
   final String desafioCriativo; // Para a fase de escrita
   final List<String> aceitasFlexoes; // Sinônimos aceitos
+  final int xpValor; // XP obtido ao dominar a palavra
 
   const PalavraMestra({
     required this.id,
@@ -79,7 +80,42 @@ class PalavraMestra {
     required this.explicacaoErro,
     required this.desafioCriativo,
     required this.aceitasFlexoes,
+    this.xpValor = 200,
   });
+
+  PalavraMestra copyWith({
+    String? id,
+    String? termoPrincipal,
+    String? definicao,
+    String? etimologia,
+    String? classeGramatical,
+    String? fraseLacuna,
+    String? autorCitacao,
+    String? perguntaQuiz,
+    List<String>? opcoesQuiz,
+    int? indexCorretoQuiz,
+    String? explicacaoErro,
+    String? desafioCriativo,
+    List<String>? aceitasFlexoes,
+    int? xpValor,
+  }) {
+    return PalavraMestra(
+      id: id ?? this.id,
+      termoPrincipal: termoPrincipal ?? this.termoPrincipal,
+      definicao: definicao ?? this.definicao,
+      etimologia: etimologia ?? this.etimologia,
+      classeGramatical: classeGramatical ?? this.classeGramatical,
+      fraseLacuna: fraseLacuna ?? this.fraseLacuna,
+      autorCitacao: autorCitacao ?? this.autorCitacao,
+      perguntaQuiz: perguntaQuiz ?? this.perguntaQuiz,
+      opcoesQuiz: opcoesQuiz ?? this.opcoesQuiz,
+      indexCorretoQuiz: indexCorretoQuiz ?? this.indexCorretoQuiz,
+      explicacaoErro: explicacaoErro ?? this.explicacaoErro,
+      desafioCriativo: desafioCriativo ?? this.desafioCriativo,
+      aceitasFlexoes: aceitasFlexoes ?? this.aceitasFlexoes,
+      xpValor: xpValor ?? this.xpValor,
+    );
+  }
 }
 
 class EraLiteraria {

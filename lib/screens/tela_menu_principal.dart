@@ -6,6 +6,7 @@ import '../providers/game_provider.dart';
 import '../widgets/grimorio_widgets.dart';
 import 'tela_login.dart';
 import 'tela_admin.dart';
+import 'tela_gestao_grimorio.dart';
 import 'tela_selecao_era.dart';
 import 'tela_tutorial.dart';
 import 'tela_grimorio.dart';
@@ -73,7 +74,7 @@ class _TelaMenuPrincipalState extends State<TelaMenuPrincipal> with SingleTicker
               left: 20,
               child: IconButton(
                 icon: const Icon(Icons.admin_panel_settings, color: Colors.redAccent),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaAdmin())),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaGestaoGrimorio())),
               ),
             ),
 

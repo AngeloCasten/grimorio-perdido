@@ -65,7 +65,6 @@ class GameProvider extends ChangeNotifier {
   void adicionarPalavra(String eraId, PalavraMestra novaPalavra) {
     int eraIndex = _eras.indexWhere((e) => e.id == eraId);
     if (eraIndex != -1) {
-      // Como EraLiteraria é const no game_data, precisamos criar uma nova instância ou cópia
       final eraAntiga = _eras[eraIndex];
       _eras[eraIndex] = EraLiteraria(
         id: eraAntiga.id,
@@ -77,6 +76,79 @@ class GameProvider extends ChangeNotifier {
         nomeArtefato: eraAntiga.nomeArtefato,
         palavras: [...eraAntiga.palavras, novaPalavra],
       );
+      saveProgress();
+      notifyListeners();
+    }
+  }
+
+  void removerPalavra(String eraId, String palavraId) {
+    int eraIndex = _eras.indexWhere((e) => e.id == eraId);
+    if (eraIndex != -1) {
+      final eraAntiga = _eras[eraIndex];
+      final novasPalavras = List<PalavraMestra>.from(eraAntiga.palavras);
+      novasPalavras.removeWhere((p) => p.id == palavraId);
+      
+      _eras[eraIndex] = EraLiteraria(
+        id: eraAntiga.id,
+        nome: eraAntiga.nome,
+        descricao: eraAntiga.descricao,
+        corTema: eraAntiga.corTema,
+        avatarSeed: eraAntiga.avatarSeed,
+        iconeArtefato: eraAntiga.iconeArtefato,
+        nomeArtefato: eraAntiga.nomeArtefato,
+        palavras: novasPalavras,
+      );
+      saveProgress();
+      notifyListeners();
+    }
+  }
+
+  void atualizarPalavra(String eraId, PalavraMestra palavraAtualizada) {
+    int eraIndex = _eras.indexWhere((e) => e.id == eraId);
+    if (eraIndex != -1) {
+      final eraAntiga = _eras[eraIndex];
+      final novasPalavras = List<PalavraMestra>.from(eraAntiga.palavras);
+      int pIndex = novasPalavras.indexWhere((p) => p.id == palavraAtualizada.id);
+      
+      if (pIndex != -1) {
+        novasPalavras[pIndex] = palavraAtualizada;
+        _eras[eraIndex] = EraLiteraria(
+          id: eraAntiga.id,
+          nome: eraAntiga.nome,
+          descricao: eraAntiga.descricao,
+          corTema: eraAntiga.corTema,
+          avatarSeed: eraAntiga.avatarSeed,
+          iconeArtefato: eraAntiga.iconeArtefato,
+          nomeArtefato: eraAntiga.nomeArtefato,
+          palavras: novasPalavras,
+        );
+        saveProgress();
+        notifyListeners();
+      }
+    }
+  }
+
+  void reordenarPalavras(String eraId, int oldIndex, int newIndex) {
+    int eraIndex = _eras.indexWhere((e) => e.id == eraId);
+    if (eraIndex != -1) {
+      final eraAntiga = _eras[eraIndex];
+      final novasPalavras = List<PalavraMestra>.from(eraAntiga.palavras);
+      
+      if (newIndex > oldIndex) newIndex -= 1;
+      final item = novasPalavras.removeAt(oldIndex);
+      novasPalavras.insert(newIndex, item);
+
+      _eras[eraIndex] = EraLiteraria(
+        id: eraAntiga.id,
+        nome: eraAntiga.nome,
+        descricao: eraAntiga.descricao,
+        corTema: eraAntiga.corTema,
+        avatarSeed: eraAntiga.avatarSeed,
+        iconeArtefato: eraAntiga.iconeArtefato,
+        nomeArtefato: eraAntiga.nomeArtefato,
+        palavras: novasPalavras,
+      );
+      saveProgress();
       notifyListeners();
     }
   }

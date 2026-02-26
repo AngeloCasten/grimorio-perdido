@@ -106,7 +106,7 @@ class _TelaImersaoState extends State<TelaImersao> with TickerProviderStateMixin
         } else if (_estagio == EstagioGameplay.lacuna) {
           _estagio = EstagioGameplay.forja;
         } else if (_estagio == EstagioGameplay.forja) {
-          game.dominarPalavra(_palavraAtual.id, 200);
+          game.dominarPalavra(_palavraAtual.id, _palavraAtual.xpValor);
           if (_indicePalavra < widget.era.palavras.length - 1) {
             _indicePalavra++;
             _estagio = EstagioGameplay.revelacao;
