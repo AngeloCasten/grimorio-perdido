@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AIService {
-  // Ajustado para usar o Google Gemini API (Modelo Flash é mais estável e rápido para JSON)
-  static const String _apiURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+  // Ajustado para usar o Google Gemini API (Versão v1 está mais estável)
+  static const String _apiURL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
   // O usuário deve passar a chave via --dart-define=AI_KEY=...
   static const String _apiKey = String.fromEnvironment('AI_KEY');
 
