@@ -76,7 +76,7 @@ class _TelaGestaoGrimorioState extends State<TelaGestaoGrimorio> {
                 });
               },
               selectedColor: Colors.redAccent.withOpacity(0.3),
-              backgroundColor: Colors.white05,
+              backgroundColor: Colors.white.withOpacity(0.05),
               labelStyle: TextStyle(color: isSelected ? Colors.redAccent : Colors.white38, fontSize: 12),
             ),
           );
