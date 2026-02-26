@@ -14,11 +14,10 @@ class AIService {
       print("AI_SERVICE ERROR: A chave AI_KEY não foi encontrada! Use --dart-define=AI_KEY=...");
       return null;
     }
-
     try {
-      // Usando o modelo 'gemini-1.5-flash', que é o mais rápido e otimizado para o plano grátis.
+      // Usando o modelo 'gemini-1.5-flash-latest', que é o alias recomendado para evitar erro de modelo não encontrado no SDK.
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash', 
+        model: 'gemini-1.5-flash-latest', 
         apiKey: _apiKey,
         generationConfig: GenerationConfig(
           temperature: 0.8,
