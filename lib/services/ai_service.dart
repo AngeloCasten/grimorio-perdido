@@ -8,10 +8,17 @@ class AIService {
   static const String _apiKey = String.fromEnvironment('AI_KEY');
 
   static Future<Map<String, dynamic>?> generateWordContent(String termo) async {
-    if (_apiKey.isEmpty) return null;
+    print("AI_SERVICE: Iniciando geração para '$termo'...");
+    
+    if (_apiKey.isEmpty) {
+      print("AI_SERVICE ERROR: A chave AI_KEY está vazia! Verifique o --dart-define.");
+      return null;
+    } else {
+      print("AI_SERVICE: Chave detectada (Início: ${_apiKey.substring(0, 5)}...)");
+    }
 
     final prompt = """
-    Gere um JSON JSON estruturado exatamente como este exemplo para a palavra literária '$termo':
+    Gere um JSON estruturado exatamente como este exemplo para a palavra literária '$termo':
     {
       "definicao": "valor",
       "etimologia": "valor",
@@ -29,6 +36,7 @@ class AIService {
     """;
 
     try {
+      print("AI_SERVICE: Enviando requisição para Google Gemini...");
       final response = await http.post(
         Uri.parse("$_apiURL?key=$_apiKey"),
         headers: {
@@ -51,19 +59,23 @@ class AIService {
         }),
       );
 
+      print("AI_SERVICE: Status Code: ${response.statusCode}");
+
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         String content = data['candidates'][0]['content']['parts'][0]['text'];
+        
+        print("AI_SERVICE: Resposta recebida com sucesso!");
         
         // Limpar possíveis markdown code blocks que o Gemini às vezes retorna
         content = content.replaceAll('```json', '').replaceAll('```', '').trim();
         
         return jsonDecode(content);
       } else {
-        print("Erro Gemini: ${response.statusCode} - ${response.body}");
+        print("AI_SERVICE ERROR: ${response.statusCode} - ${response.body}");
       }
     } catch (e) {
-      print("Erro na IA: $e");
+      print("AI_SERVICE EXCEPTION: $e");
     }
     return null;
   }
